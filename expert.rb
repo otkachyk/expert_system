@@ -127,3 +127,212 @@ while input = Readline.readline("-> ", true)
 end
 
 #------------------------------------------------------#
+
+
+
+# `KNOWLEDGE BASE`
+# {
+#   CanRideBikeToWork F => Q CanGetToWork
+#
+#   CanDriveToWork G => Q CanGetToWork
+#
+#   CanWalkToWork H => Q CanGetToWork
+#
+#   HaveBike I + J Sunny => F CanRideBikeToWork
+#
+#   OwnCar K => G CanDriveToWork
+#
+#   RentCar L => G CanDriveToWork
+#
+#   HaveMoney C + E TaxiAvailable => G CanDriveToWork
+#
+#   `=ABCDE`
+# }
+#
+# `QUERY`
+# {
+#   `?QA`
+# }
+
+# Backchain(KB,query) // wrapper function
+# 	stack = new stack() // initialize
+#   	stack.push(query)
+# 	context = new stack() // list of goals trying to prove
+# 	return BC(KB,stack,context)
+
+def backchain($KB, query)
+  stack = []
+  stack.push(query)
+
+  context = []
+  backtrack($KB, stack, context)
+end
+
+BC(KB,stack,context) // the main recursive function
+	# if stack.empty(), return True
+  #
+	# goal = stack.pop() // a known fact was popped, recurse on rest of goals in stack
+  #
+	# if goal "Є" KB, return BC(KB,stack,context)
+  # context.push(goal)//add this to list of things trying to prove
+
+  for each rule a1..an => goal in KB: // choice point, might have to backtrack to try other rules
+		if any ai is in context: continue//skip this rule, circular
+		for each ai in antecedents:
+			stack = stack.push(ai) // push antecedents as subgoals
+		result = BC(KB,stack,context) // recurse
+		if result=True: return True
+	return False
+
+def kb_which_include_all_rules
+  #   CanRideBikeToWork F => Q CanGetToWork
+  #   CanDriveToWork G => Q CanGetToWork
+  #   CanWalkToWork H => Q CanGetToWork
+end
+
+def backtrack($KB, stack, context)
+  return true if stack.empty?
+
+  goal = stack.shift
+  return backtrack($KB,stack,context) if $KB.include? goal
+  context.push(goal)
+
+  kb_which_include_all_rules.each do |rule|
+    next if context.include? rule
+
+
+  end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 
+# Notes on Back-chaining Algorithm
+#
+# This is simpler version of the algorithm that backtracks over rules until each subgoal in the goal stack can be proved as a known fact.
+#
+# Backchain(KB,query) // wrapper function
+# 	stack  new stack() // initialize
+#   	stack.push(query)
+# 	return BC(KB,stack)
+#
+# BC(KB,stack) // the main recursive function
+# 	if stack.empty(), return True
+# 	goal  stack.pop()
+#    // a known fact was popped, recurse on rest of goals in stack
+# 	if goal  KB, return BC(KB,stack)
+# 	for each rule a1..angoal in KB:
+# 		// choice point, might have to backtrack to try other rules
+# 		for each ai in antecedents:
+# 			stack  stack.push(ai) // push antecedents as subgoals
+# 		result  BC(KB,stack) // recurse
+# 		if result=True: return True
+# 	return False
+#
+#
+# This is a more sophisticated version of the algorithm that keeps track of the context of subgoals it is trying to prove, so it avoids circularities and getting stuck in infinite loops.
+#
+# Backchain(KB,query) // wrapper function
+# 	stack  new stack() // initialize
+#   	stack.push(query)
+# 	context  new stack() // list of goals trying to prove
+# 	return BC(KB,stack,context)
+#
+# BC(KB,stack,context) // the main recursive function
+# 	if stack.empty(), return True
+# 	goal  stack.pop()
+#    // a known fact was popped, recurse on rest of goals in stack
+# 	if goal  KB, return BC(KB,stack,context)
+#    context.push(goal)//add this to list of things trying to prove
+# 	for each rule a1..angoal in KB:
+# 		// choice point, might have to backtrack to try other rules
+# 		if any ai is in context: continue//skip this rule, circular
+# 		for each ai in antecedents:
+# 			stack  stack.push(ai) // push antecedents as subgoals
+# 		result  BC(KB,stack,context) // recurse
+# 		if result=True: return True
+# 	return False
+#
+#
+#
+# example
+# KB = {1. CanRideBikeToWork  CanGetToWork
+# 	2. CanDriveToWork  CanGetToWork
+# 	3. CanWalkToWork  CanGetToWork
+# 	4. HaveBikeSunny  CanRideBikeToWork
+# 	5. OwnCar  CanDriveToWork
+# 	6. RentCar  CanDriveToWork
+# 	HaveMoneyTaxiAvailable  CanDriveToWork
+# 	Rainy
+# 	HaveBike
+# 	HaveMoney
+# 	RentCar
+# 	TaxiAvailable }
+#
+# query = CanGetToWork ?
+#
+# {CanGetToWork} initialize goal stack with query
+# pop top goal, match with consequent of rule 1 (choicepoint*),push antecedents onto stack
+# {CanRideBikeToWork}
+# {HaveBike,Sunny} use rule 4
+# {Sunny} pop HaveBike, is fact
+# backtrack since Sunny in not a fact and can’t be proved
+# 	make another choice at * above
+# {CanDriveToWork} rule 2
+# {OwnCar} rule 5
+# backtrack, not provable, choose another rule to prove CanDriveToWork
+# {RentCar} using rule 6
+# known fact
+# {} - success! empty goal stack, return True
+#
+
+
+
+Rainy = A
+HaveBike = B
+HaveMoney = C
+RentCar = D
+TaxiAvailable = E
+
+CanRideBikeToWork = F
+CanDriveToWork = G
+CanWalkToWork = H
+HaveBike = I
+Sunny = J
+OwnCar = K
+RentCar = L
+HaveMoney = M
+TaxiAvailable = N
+CanGetToWork = Q
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=
